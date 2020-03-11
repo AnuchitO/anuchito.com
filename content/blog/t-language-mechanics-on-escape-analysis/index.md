@@ -53,6 +53,82 @@ Escape analysis algorithms มีหน้าที่วิเคราะห�
 
 https://play.golang.org/p/Y_VZxYteKO
 
+##### Listing 1
+
+```go
+01 package main
+02
+03 type user struct {
+04     name  string
+05     email string
+06 }
+07
+08 func main() {
+09     u1 := createUserV1()
+10     u2 := createUserV2()
+11
+12     println("u1", &u1, "u2", &u2)
+13 }
+14
+15 //go:noinline
+16 func createUserV1() user {
+17     u := user{
+18         name:  "Bill",
+19         email: "bill@ardanlabs.com",
+20     }
+21
+22     println("V1", &u)
+23     return u
+24 }
+25
+26 //go:noinline
+27 func createUserV2() *user {
+28     u := user{
+29         name:  "Bill",
+30         email: "bill@ardanlabs.com",
+31     }
+32
+33     println("V2", &u)
+34     return &u
+35 }
+```
+
+คอมเมนต์ `go:noinline` เป็น directive เพื่อบอกให้คอมไพเลอร์อย่าทำการ inlining functions นี้ไปที่ main function.
+เราใส่คอมเมนต์นี้เพื่อให้ตัวอย่างนี้ง่ายต่อการอธิบาย
+ในบทความถัดไปจะยกตัวอย่าง side effects ของการ inlining ให้ดู
+
+ใน Listing 1, เราจะเห็นว่าทั้งสองฟังก์ชันสร้าง user value และคืนค่ากลับไปให้คนที่เรียกมัน.
+ฟังก์ชัน createUserV1() คืนค่าในรูปแบบ `value semantics`
+
+
+##### Listing 2
+
+```go
+16 func createUserV1() user {
+17     u := user{
+18         name:  "Bill",
+19         email: "bill@ardanlabs.com",
+20     }
+21
+22     println("V1", &u)
+23     return u
+24 }
+```
+
+I said the function is using value semantics on the return because the user value created by this function is being copied and passed up the call stack. This means the calling function is receiving a copy of the value itself.
+
+You can see the construction of a user value being performed on lines 17 through 20. Then on line 23, a copy of the user value is passed up the call stack and back to the caller. After the function returns, the stack looks like this.
+
+ฟังกชัน createUserV1() คืนค่าในรูปแบบของ `value semantics`  เพราะว่าค่า user ถูกสร้างโดยฟังก์ชันนี้และถูก copied แล้วส่งกลับไปยังคนที่เรียกมัน นั่นหมายความว่า ฟังก์ชัน main จะได้รับใหม่ที่ copy ของ user ที่มาจากค่าที่ถูกสร้างเสร็จในฟังก์ชั่นนี้.
+
+บรรทัดที่ 17 ถึง 20 คือการสร้าง user value แล้วในบรรทัดที่ 23 ทำจะทำการ copy ค่าของ user แล้วส่งกลับไปยัง call stack และกลับไปยังคนที่เรียกฟังก์ชั่นนี้
+หลังจากฟังก์ชันนี้ทำงานเสร็จ stack จะมีลักษณะดังรูป
+
+##### Figure 1
+![Figure 1](https://www.ardanlabs.com/images/goinggo/81_figure1.png)
+
+ใน Figure 1 ค่าของ user จะคงอยู่ในทั้งสอง  frames หลังจากเกิดการเรียก createUserV1
+ตัวอย่างถัดไปจะเป็นการคืนค่าที่อยู่ในรูปแบบของ `pointer semantics`
 
 
 ## Readability
