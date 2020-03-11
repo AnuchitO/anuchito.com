@@ -31,6 +31,7 @@ GC ทำให้เราไม่ต้องกังวัลเกี่�
 
 https://play.golang.org/p/pxn5u4EBSI
 
+```
   0 0x44ff88 HELLO
   1 0x44ff88 HELLO
   2 0x457f88 HELLO
@@ -41,6 +42,7 @@ https://play.golang.org/p/pxn5u4EBSI
   7 0x46ff88 HELLO
   8 0x46ff88 HELLO
   9 0x46ff88 HELLO
+```
 
 ## Escape Mechanics
 
