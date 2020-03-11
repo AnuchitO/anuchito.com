@@ -1,5 +1,5 @@
 ---
-title: [ร่าง][แปล] Language Mechanics On Escape Analysis
+title: "[ร่าง][แปล] Language Mechanics On Escape Analysis"
 date: "2020-03-10T07:45:00.000Z"
 description: "[ร่าง][แปล] Language Mechanics On Escape Analysis"
 ---
