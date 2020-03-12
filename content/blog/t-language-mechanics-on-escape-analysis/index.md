@@ -114,22 +114,40 @@ https://play.golang.org/p/Y_VZxYteKO
 23     return u
 24 }
 ```
+ฟังก์ชัน createUserV1() คืนค่าในรูปแบบของ `value semantics`  เพราะว่าค่า user ถูกสร้างโดยฟังก์ชันนี้และถูก copied แล้วส่งกลับไปยังคนที่เรียกมัน นั่นหมายความว่า ฟังก์ชัน main จะได้รับใหม่ที่ copy ของ user ที่มาจากค่าที่ถูกสร้างเสร็จในฟังก์ชั่นนี้.
 
-I said the function is using value semantics on the return because the user value created by this function is being copied and passed up the call stack. This means the calling function is receiving a copy of the value itself.
-
-You can see the construction of a user value being performed on lines 17 through 20. Then on line 23, a copy of the user value is passed up the call stack and back to the caller. After the function returns, the stack looks like this.
-
-ฟังกชัน createUserV1() คืนค่าในรูปแบบของ `value semantics`  เพราะว่าค่า user ถูกสร้างโดยฟังก์ชันนี้และถูก copied แล้วส่งกลับไปยังคนที่เรียกมัน นั่นหมายความว่า ฟังก์ชัน main จะได้รับใหม่ที่ copy ของ user ที่มาจากค่าที่ถูกสร้างเสร็จในฟังก์ชั่นนี้.
-
-บรรทัดที่ 17 ถึง 20 คือการสร้าง user value แล้วในบรรทัดที่ 23 ทำจะทำการ copy ค่าของ user แล้วส่งกลับไปยัง call stack และกลับไปยังคนที่เรียกฟังก์ชั่นนี้
+บรรทัดที่ 17 ถึง 20 คือการสร้าง user แล้วในบรรทัดที่ 23 ทำจะทำการ copy ค่าของ user แล้วส่งกลับไปยัง call stack และกลับไปยังคนที่เรียกฟังก์ชั่นนี้
 หลังจากฟังก์ชันนี้ทำงานเสร็จ stack จะมีลักษณะดังรูป
 
 ##### Figure 1
 ![Figure 1](https://www.ardanlabs.com/images/goinggo/81_figure1.png)
 
-ใน Figure 1 ค่าของ user จะคงอยู่ในทั้งสอง  frames หลังจากเกิดการเรียก createUserV1
+ใน Figure 1 ค่าของ user จะคงอยู่ในทั้งสอง frames หลังจากเกิดการเรียก createUserV1
 ตัวอย่างถัดไปจะเป็นการคืนค่าที่อยู่ในรูปแบบของ `pointer semantics`
 
+##### Listing 3
+```go
+27 func createUserV2() *user {
+28     u := user{
+29         name:  "Bill",
+30         email: "bill@ardanlabs.com",
+31     }
+32
+33     println("V2", &u)
+34     return &u
+35 }
+```
+
+ฟังก์ชัน createUserV2 ใช้ `pointer semantics` ในตอนที่คืนค่า (บรรทัดที่ 34) เพราะว่าค่าของ user ถูกสร้างที่ฟังก์ชั่นนี้
+แล้วถูกแชร์กลับไปที่ call stack (Main Frame). นั่นหมายถึงว่า ฟังก์ชันที่เรียก(main ฟังก์ชัน) จะได้รับ copy address ของค่า user กลับไป
+
+บรรทัดที่ 28 ถึง 31 คือการสร้าง user เหมือนกับตัวอย่างก่อนหน้านี้
+แต่ในบรรทัดที่ 34 ต่างจากเดิม คือแทนที่จะทำการ copy ค่าของ user แล้วส่งกลับไปยัง call stack
+บรรทัดที่ 34 ทำการ copy address ของ user แล้วคืนค่า address นั่นกลับไปแทน
+ซึ่งเราอาจจะคิดว่า stack จะมีลักษณะดัง Figure 2
+
+###### Figure 2
+![Figure 2](https://www.ardanlabs.com/images/goinggo/81_figure2.png)
 
 ## Readability
 
